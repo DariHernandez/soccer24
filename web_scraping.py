@@ -3,7 +3,7 @@
 import time as t
 from selenium import webdriver
 
-def web_extract (list_countries): 
+def web_extract (list_countries, list_ligas): 
     """ 
     Main function for web scraping. Extract information from the web page https://www.soccer24.com/
     """
@@ -27,25 +27,15 @@ def web_extract (list_countries):
         rows = browser.find_elements_by_css_selector (selector)
         
         if rows: 
+            # Re-select rows
+            t.sleep (3)
+            rows = browser.find_elements_by_css_selector (selector)
             break
 
     #  Accept cokies
     selector = "#onetrust-accept-btn-handler"
     accept_button = browser.find_element_by_css_selector (selector)
-    accept_button.click()
-
-
-    # Click display buttons
-    # selector = "#live-table > div.event > div > div > div > div.event__expander.icon--expander.expand"
-    selector = '#live-table > div.event > div > div > div > div.event__info[title^="Display"]'
-    display_buttons = browser.find_elements_by_css_selector (selector)
-
-
-    for display_button in display_buttons: 
-        display_button.click()
-
-
-    
+    accept_button.click()   
 
 
     # Variables to save the current country and liga
@@ -53,7 +43,7 @@ def web_extract (list_countries):
     liga = ""
 
     # Loop for each row
-    for row in rows:
+    for index_row in range (1, len(rows)+1):
 
         # Dictionary to save the information of the event
         data_row = {}
@@ -63,15 +53,18 @@ def web_extract (list_countries):
         try: 
 
             # Save the header information of the events
-            selector_country = "div.icon--flag div span:nth-child(1)"
-            selector_liga = "div.icon--flag div span:nth-child(2)"
+            selector_country = "#live-table > div.event > div > div > div:nth-child({}) div.icon--flag div span:nth-child(1)".format (index_row)
+            selector_liga = "#live-table > div.event > div > div > div:nth-child({}) div.icon--flag div span:nth-child(2)".format (index_row)
 
-            country = row.find_element_by_css_selector (selector_country).text
-            liga = row.find_element_by_css_selector (selector_liga).text
+            country = browser.find_element_by_css_selector (selector_country).text
+            liga = browser.find_element_by_css_selector (selector_liga).text
 
             # Filter countries to showe message
-            if str(country).strip().upper() in list_countries:  
+            if str(country).strip().upper() in list_countries and str(liga).strip() in list_ligas:  
                 print ("Scraping events from {}, {}...".format (country, liga))
+            else: 
+                print ("Skipping row...")
+
 
         # Get the information of the events
         except: 
@@ -79,6 +72,10 @@ def web_extract (list_countries):
             # Filter countries to skip
             if not str(country).strip().upper() in list_countries:  
                 continue
+
+            if not str(liga).strip() in list_ligas:  
+                continue
+
 
             id = ""
             time = ""
@@ -90,12 +87,12 @@ def web_extract (list_countries):
             c3 = ""            
 
             # Get the coutes
-            selector_c1 = "div:nth-child(6)"
-            selector_c2 = "div:nth-child(7)"
-            selector_c3 = "div:nth-child(8)"     
-            c1 = row.find_element_by_css_selector (selector_c1).text   
-            c2 = row.find_element_by_css_selector (selector_c2).text   
-            c3 = row.find_element_by_css_selector (selector_c3).text  
+            selector_c1 = "#live-table > div.event > div > div > div:nth-child({}) div:nth-child(6)".format (index_row)
+            selector_c2 = "#live-table > div.event > div > div > div:nth-child({}) div:nth-child(7)".format (index_row)
+            selector_c3 = "#live-table > div.event > div > div > div:nth-child({}) div:nth-child(8)".format (index_row)
+            c1 = browser.find_element_by_css_selector (selector_c1).text   
+            c2 = browser.find_element_by_css_selector (selector_c2).text   
+            c3 = browser.find_element_by_css_selector (selector_c3).text  
 
             # Skip matches without cuotes
             if c1.strip() == "-" or c2.strip() == "-" or c3.strip() == "-": 
@@ -103,17 +100,17 @@ def web_extract (list_countries):
 
 
             # Get the id
-            id = row.get_attribute ("id")            
+            id = rows[index_row].get_attribute ("id")            
 
 
             # Get the time
             # Try to get the time or the status of the event
             try: 
-                selector_time = "div.event__time"
-                time = row.find_element_by_css_selector (selector_time).text
+                selector_time = "#live-table > div.event > div > div > div:nth-child({}) div.event__time".format (index_row)
+                time = browser.find_element_by_css_selector (selector_time).text
             except: 
-                selector_time = "div.event__stage > div"
-                time = row.find_element_by_css_selector (selector_time).text
+                selector_time = "#live-table > div.event > div > div > div:nth-child({}) div.event__stage > div".format (index_row)
+                time = browser.find_element_by_css_selector (selector_time).text
             
             # Delete extra text in time
             if "fro" in str(time).lower(): 
@@ -121,10 +118,10 @@ def web_extract (list_countries):
 
 
             # Get teams
-            selector_team1 = "div:nth-child(3)"
-            selector_team2 = "div:nth-child(4)"
-            team1 = row.find_element_by_css_selector (selector_team1).text
-            team2 = row.find_element_by_css_selector (selector_team2).text
+            selector_team1 = "#live-table > div.event > div > div > div:nth-child({}) div:nth-child(3)".format (index_row)
+            selector_team2 = "#live-table > div.event > div > div > div:nth-child({}) div:nth-child(4)".format (index_row)
+            team1 = browser.find_element_by_css_selector (selector_team1).text
+            team2 = browser.find_element_by_css_selector (selector_team2).text
 
             # Remove quotes in teams names
             team1 = str(team1).replace ("\'", " ")
@@ -132,8 +129,8 @@ def web_extract (list_countries):
 
 
             # Get the match of the event
-            selector_score = "div:nth-child(5)"
-            score = row.find_element_by_css_selector (selector_score).text
+            selector_score = "#live-table > div.event > div > div > div:nth-child({}) div:nth-child(5)".format (index_row)
+            score = browser.find_element_by_css_selector (selector_score).text
 
             # delete extra text in score
             score = str(score).lower().strip().replace("\n", "")

@@ -80,12 +80,16 @@ countries = [
     "WORLD"
 ]
 
+ligas = [
+    "Premier League",
+    "Ligue 1"
+]
 
 
 
 
 # Make web scraping to the page
-data_scraping = web_extract(countries)
+data_scraping = web_extract(countries, ligas)
 
 # Save information in data base
 save_data_base ( 
