@@ -1,5 +1,6 @@
 #! python3
 
+import time as t
 from selenium import webdriver
 
 def web_extract (list_countries): 
@@ -28,7 +29,25 @@ def web_extract (list_countries):
         if rows: 
             break
 
+    #  Accept cokies
+    selector = "#onetrust-accept-btn-handler"
+    accept_button = browser.find_element_by_css_selector (selector)
+    accept_button.click()
+
+
+    # Click display buttons
+    # selector = "#live-table > div.event > div > div > div > div.event__expander.icon--expander.expand"
+    selector = '#live-table > div.event > div > div > div > div.event__info[title^="Display"]'
+    display_buttons = browser.find_elements_by_css_selector (selector)
+
+
+    for display_button in display_buttons: 
+        display_button.click()
+
+
     
+
+
     # Variables to save the current country and liga
     country = ""
     liga = ""
@@ -70,6 +89,18 @@ def web_extract (list_countries):
             c2 = ""
             c3 = ""            
 
+            # Get the coutes
+            selector_c1 = "div:nth-child(6)"
+            selector_c2 = "div:nth-child(7)"
+            selector_c3 = "div:nth-child(8)"     
+            c1 = row.find_element_by_css_selector (selector_c1).text   
+            c2 = row.find_element_by_css_selector (selector_c2).text   
+            c3 = row.find_element_by_css_selector (selector_c3).text  
+
+            # Skip matches without cuotes
+            if c1.strip() == "-" or c2.strip() == "-" or c3.strip() == "-": 
+                continue
+
 
             # Get the id
             id = row.get_attribute ("id")            
@@ -110,15 +141,7 @@ def web_extract (list_countries):
             # Replace empty scores
             if not score or score.strip() == "-": 
                 score = "none"
-
-
-            # Get the coutes
-            selector_c1 = "div:nth-child(6)"
-            selector_c2 = "div:nth-child(7)"
-            selector_c3 = "div:nth-child(8)"     
-            c1 = row.find_element_by_css_selector (selector_c1).text   
-            c2 = row.find_element_by_css_selector (selector_c2).text   
-            c3 = row.find_element_by_css_selector (selector_c3).text   
+ 
 
             # Delate quotes in country and liga
             country = str(country).replace ("\'", " ")
