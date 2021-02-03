@@ -1,8 +1,8 @@
 #! python3
 
-import pymysql.cursors, time, pprint
+import pymysql.cursors, time, datetime
 
-def save_data_base (data, host, user, password, database, table, id, pais, liga, tiempo, equipo1, equipo2, marcador, cuota1, cuota2, cuota3): 
+def save_data_base (data, host, user, password, database, table, id, pais, liga, tiempo, equipo1, equipo2, marcador, cuota1, cuota2, cuota3, fecha): 
     """
     save the information in the MYSQl data base
     """
@@ -39,7 +39,7 @@ def save_data_base (data, host, user, password, database, table, id, pais, liga,
                 # Seach the current row in the data base
                 sql = "SELECT * FROM `{}` WHERE `{}`='{}';".format(table, id, id_value)
                 cursor.execute(sql)
-                
+
                 # Verify if register already exist in the data base
                 if cursor.fetchall(): 
 
@@ -51,9 +51,14 @@ def save_data_base (data, host, user, password, database, table, id, pais, liga,
                     connection.commit()
                 
                 else: 
+
+                    # Get the date
+                    current_date = datetime.datetime.now()
+                    current_date_formated = current_date.strftime ("%Y-%m-%d %H:%M:%S")
+
                     
                     # Insert register
-                    sql = "INSERT INTO `{}` (`{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`) VALUES ('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}');".format (table, id, pais, liga, tiempo, equipo1, equipo2, marcador, cuota1, cuota2, cuota3, id_value, country_value, liga_value, time_value, team1_value, team2_value, score_value, c1_value, c2_value, c3_value)
+                    sql = "INSERT INTO `{}` (`{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`) VALUES ('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}');".format (table, id, pais, liga, tiempo, equipo1, equipo2, marcador, cuota1, cuota2, cuota3, fecha, id_value, country_value, liga_value, time_value, team1_value, team2_value, score_value, c1_value, c2_value, c3_value, current_date_formated)
 
                     cursor.execute(sql)
         

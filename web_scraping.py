@@ -2,6 +2,7 @@
 
 import time as t
 from selenium import webdriver
+from webdriver_manager.chrome import ChromeDriverManager
 
 def web_extract (list_countries, list_ligas): 
     """ 
@@ -16,7 +17,7 @@ def web_extract (list_countries, list_ligas):
     web_page = "https://www.soccer24.com/"
 
     # OIpen page with chrome
-    browser = webdriver.Chrome ()
+    browser = webdriver.Chrome(ChromeDriverManager().install())
     browser.get (web_page)
 
     # Loop for wait the page to load
@@ -100,7 +101,7 @@ def web_extract (list_countries, list_ligas):
 
 
             # Get the id
-            id = rows[index_row].get_attribute ("id")            
+            id = rows[index_row-1].get_attribute ("id")            
 
 
             # Get the time
@@ -155,6 +156,9 @@ def web_extract (list_countries, list_ligas):
             data_row["cuota 3"] = c3 
             data_row["pais"] = country
             data_row["liga"] = liga
+
+            # Get date and time of the match
+
 
             # Save the current data to return list
             return_data.append (data_row)    

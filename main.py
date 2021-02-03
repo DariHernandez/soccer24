@@ -20,6 +20,7 @@ marcador_column_name   = "score"
 cuota1_column_name     = "c1"
 cuota2_column_name     = "c2"
 cuota3_column_name     = "c3"
+fecha_column_name      = "date"
 
 # List of countries to make we scrapig
 countries = [
@@ -82,10 +83,10 @@ countries = [
 
 ligas = [
     "Premier League",
-    "Ligue 1"
+    "Ligue 1",
+    "Serie A",
+    "Primer Devision"
 ]
-
-
 
 
 # Make web scraping to the page
@@ -108,5 +109,6 @@ save_data_base (
     marcador = marcador_column_name, 
     cuota1 = cuota1_column_name, 
     cuota2 = cuota2_column_name, 
-    cuota3 = cuota3_column_name
+    cuota3 = cuota3_column_name,
+    fecha = fecha_column_name
     )
